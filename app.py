@@ -241,40 +241,40 @@ class LanguageModel:
         if query:
             suggestions = model.predict(query, topk)
         
-        if len(suggestions) == 0:
-        
-            st.warning("No Suggestions Found")
-        
-        else:
-        
-            words = []
-            probs = []
-        
-            for word, score in suggestions:
-        
-                words.append(word)
-                probs.append(score)
-        
-            df = pd.DataFrame({
-        
-                "Suggestion": words,
-                "Probability": probs
-        
-            })
-        
-            st.dataframe(df, use_container_width=True)
-        
-            st.bar_chart(
-                df.set_index("Suggestion")
-            )
-        
-            st.success("Top Predictions")
-        
-            for i, (word, score) in enumerate(suggestions, start=1):
-        
-                st.write(
-                    f"{i}. **{word}**   (Probability : {score:.6f})"
+            if len(suggestions) == 0:
+            
+                st.warning("No Suggestions Found")
+            
+            else:
+            
+                words = []
+                probs = []
+            
+                for word, score in suggestions:
+            
+                    words.append(word)
+                    probs.append(score)
+            
+                df = pd.DataFrame({
+            
+                    "Suggestion": words,
+                    "Probability": probs
+            
+                })
+            
+                st.dataframe(df, use_container_width=True)
+            
+                st.bar_chart(
+                    df.set_index("Suggestion")
                 )
+            
+                st.success("Top Predictions")
+            
+                for i, (word, score) in enumerate(suggestions, start=1):
+            
+                    st.write(
+                        f"{i}. **{word}**   (Probability : {score:.6f})"
+                    )
         
         else:
         
