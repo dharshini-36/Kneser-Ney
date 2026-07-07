@@ -239,8 +239,7 @@ class LanguageModel:
         st.subheader("Suggestions")
         
         if query:
-        
-        suggestions = model.predict(query, topk)
+            suggestions = model.predict(query, topk)
         
         if len(suggestions) == 0:
         
