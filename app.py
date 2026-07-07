@@ -124,180 +124,180 @@ class LanguageModel:
     # TRAIN MODEL
     # ==========================================
     
-    model = LanguageModel()
+model = LanguageModel()
+
+model.train(corpus)
+
+stats = model.statistics()
+
+# ==========================================
+# STREAMLIT PAGE
+# ==========================================
+
+st.set_page_config(
+page_title="Search AutoComplete",
+page_icon="🔍",
+layout="wide"
+)
+
+# ==========================================
+# CSS
+# ==========================================
+
+st.markdown("""
+<style>
+
+.main{
+background:#f7f7f7;
+}
+
+.title{
+text-align:center;
+color:#0F62FE;
+font-size:40px;
+font-weight:bold;
+}
+
+.subtitle{
+text-align:center;
+color:gray;
+}
+
+.search{
+padding-top:20px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ==========================================
+# HEADER
+# ==========================================
+
+st.markdown("<div class='title'>🔍 Search AutoComplete</div>",
+unsafe_allow_html=True)
+
+st.markdown(
+"<div class='subtitle'>5-Gram Language Model using Kneser-Ney Smoothing</div>",
+unsafe_allow_html=True)
+
+st.write("")
+
+# ==========================================
+# SIDEBAR
+# ==========================================
+
+st.sidebar.title("Project")
+
+st.sidebar.success("5-Gram Language Model")
+
+st.sidebar.write("Discount")
+
+discount = st.sidebar.slider(
+"Discount",
+0.1,
+1.0,
+0.75
+)
+
+topk = st.sidebar.slider(
+"Suggestions",
+1,
+10,
+5
+)
+
+# ==========================================
+# SEARCH BOX
+# ==========================================
+
+query = st.text_input(
+"Search",
+placeholder="Type your search..."
+)
+
+# ==========================================
+# MODEL STATISTICS
+# ==========================================
+
+st.subheader("Model Statistics")
+
+col1,col2,col3 = st.columns(3)
+
+col1.metric("Vocabulary",stats["Vocabulary"])
+col2.metric("1-Grams",stats["1-Grams"])
+col3.metric("2-Grams",stats["2-Grams"])
+
+col4,col5,col6 = st.columns(3)
+
+col4.metric("3-Grams",stats["3-Grams"])
+col5.metric("4-Grams",stats["4-Grams"])
+col6.metric("5-Grams",stats["5-Grams"])
+
+st.divider()
+
+st.subheader("Suggestions")
+
+if query:
+    suggestions = model.predict(query, topk)
+
+    if len(suggestions) == 0:
     
-    model.train(corpus)
+        st.warning("No Suggestions Found")
     
-    stats = model.statistics()
+    else:
     
-    # ==========================================
-    # STREAMLIT PAGE
-    # ==========================================
+        words = []
+        probs = []
     
-    st.set_page_config(
-    page_title="Search AutoComplete",
-    page_icon="🔍",
-    layout="wide"
+        for word, score in suggestions:
+    
+            words.append(word)
+            probs.append(score)
+    
+        df = pd.DataFrame({
+    
+            "Suggestion": words,
+            "Probability": probs
+    
+        })
+    
+        st.dataframe(df, use_container_width=True)
+    
+        st.bar_chart(
+            df.set_index("Suggestion")
+        )
+    
+        st.success("Top Predictions")
+    
+        for i, (word, score) in enumerate(suggestions, start=1):
+    
+            st.write(
+                f"{i}. **{word}**   (Probability : {score:.6f})"
+            )
+
+else:
+    st.info("Start typing to get autocomplete suggestions.")
+    st.divider()
+    st.subheader("Test Sentence Probability")
+
+    sentence = st.text_input(
+    "Enter a complete sentence",
+    placeholder="best places to visit in india"
     )
+
+    if sentence:
     
-    # ==========================================
-    # CSS
-    # ==========================================
-    
-    st.markdown("""
-    <style>
-    
-    .main{
-    background:#f7f7f7;
-    }
-    
-    .title{
-    text-align:center;
-    color:#0F62FE;
-    font-size:40px;
-    font-weight:bold;
-    }
-    
-    .subtitle{
-    text-align:center;
-    color:gray;
-    }
-    
-    .search{
-    padding-top:20px;
-    }
-    
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # ==========================================
-    # HEADER
-    # ==========================================
-    
-    st.markdown("<div class='title'>🔍 Search AutoComplete</div>",
-    unsafe_allow_html=True)
-    
-    st.markdown(
-    "<div class='subtitle'>5-Gram Language Model using Kneser-Ney Smoothing</div>",
-    unsafe_allow_html=True)
-    
-    st.write("")
-    
-    # ==========================================
-    # SIDEBAR
-    # ==========================================
-    
-    st.sidebar.title("Project")
-    
-    st.sidebar.success("5-Gram Language Model")
-    
-    st.sidebar.write("Discount")
-    
-    discount = st.sidebar.slider(
-    "Discount",
-    0.1,
-    1.0,
-    0.75
-    )
-    
-    topk = st.sidebar.slider(
-    "Suggestions",
-    1,
-    10,
-    5
-    )
-    
-    # ==========================================
-    # SEARCH BOX
-    # ==========================================
-    
-    query = st.text_input(
-    "Search",
-    placeholder="Type your search..."
-    )
-    
-    # ==========================================
-    # MODEL STATISTICS
-    # ==========================================
-    
-    st.subheader("Model Statistics")
-    
-    col1,col2,col3 = st.columns(3)
-    
-    col1.metric("Vocabulary",stats["Vocabulary"])
-    col2.metric("1-Grams",stats["1-Grams"])
-    col3.metric("2-Grams",stats["2-Grams"])
-    
-    col4,col5,col6 = st.columns(3)
-    
-    col4.metric("3-Grams",stats["3-Grams"])
-    col5.metric("4-Grams",stats["4-Grams"])
-    col6.metric("5-Grams",stats["5-Grams"])
+        prob = model.sentence_probability(sentence)
+        
+        st.metric(
+            "Sentence Probability",
+            f"{prob:.10f}"
+        )
     
     st.divider()
     
-    st.subheader("Suggestions")
-    
-    if query:
-        suggestions = model.predict(query, topk)
-    
-        if len(suggestions) == 0:
-        
-            st.warning("No Suggestions Found")
-        
-        else:
-        
-            words = []
-            probs = []
-        
-            for word, score in suggestions:
-        
-                words.append(word)
-                probs.append(score)
-        
-            df = pd.DataFrame({
-        
-                "Suggestion": words,
-                "Probability": probs
-        
-            })
-        
-            st.dataframe(df, use_container_width=True)
-        
-            st.bar_chart(
-                df.set_index("Suggestion")
-            )
-        
-            st.success("Top Predictions")
-        
-            for i, (word, score) in enumerate(suggestions, start=1):
-        
-                st.write(
-                    f"{i}. **{word}**   (Probability : {score:.6f})"
-                )
-    
-    else:
-        st.info("Start typing to get autocomplete suggestions.")
-        st.divider()
-        st.subheader("Test Sentence Probability")
-    
-        sentence = st.text_input(
-        "Enter a complete sentence",
-        placeholder="best places to visit in india"
-        )
-    
-        if sentence:
-        
-            prob = model.sentence_probability(sentence)
-            
-            st.metric(
-                "Sentence Probability",
-                f"{prob:.10f}"
-            )
-        
-        st.divider()
-        
-        st.caption("Developed using a Sparse 5-Gram Language Model with Recursive Kneser-Ney Smoothing.")
+    st.caption("Developed using a Sparse 5-Gram Language Model with Recursive Kneser-Ney Smoothing.")
     
     # --------------------------------------------------
     # Continuation Probability (Unigram)
