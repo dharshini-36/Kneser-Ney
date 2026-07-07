@@ -277,30 +277,27 @@ class LanguageModel:
                     )
         
         else:
+            st.info("Start typing to get autocomplete suggestions.")
+            st.divider()
+            st.subheader("Test Sentence Probability")
         
-        st.info("Start typing to get autocomplete suggestions.")
+            sentence = st.text_input(
+            "Enter a complete sentence",
+            placeholder="best places to visit in india"
+            )
         
-        st.divider()
-        
-        st.subheader("Test Sentence Probability")
-        
-        sentence = st.text_input(
-        "Enter a complete sentence",
-        placeholder="best places to visit in india"
-        )
-        
-        if sentence:
-        
-        prob = model.sentence_probability(sentence)
-        
-        st.metric(
-            "Sentence Probability",
-            f"{prob:.10f}"
-        )
-        
-        st.divider()
-        
-        st.caption("Developed using a Sparse 5-Gram Language Model with Recursive Kneser-Ney Smoothing.")
+            if sentence:
+            
+                prob = model.sentence_probability(sentence)
+                
+                st.metric(
+                    "Sentence Probability",
+                    f"{prob:.10f}"
+                )
+            
+            st.divider()
+            
+            st.caption("Developed using a Sparse 5-Gram Language Model with Recursive Kneser-Ney Smoothing.")
         
         # --------------------------------------------------
         # Continuation Probability (Unigram)
